@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>DNA comparison</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../resources/css/style.css">
+</head>
+
+<body>
+    <!-- Begin page content -->
+    <div class="container-fluid align-items-center justify-content-center">
+        <div class="col-xl-6 col-sm-12 col-8 mx-auto blur">
+            <div class="col text-center" style="padding-bottom: 20px">
+                <h1 style="padding: 20px">DNA comparison</h1>
+                <div class="row justify-content-between" style="margin-bottom: 20px">
+                    <div class="col-6 align-self-center" style="padding-top: px">
+                        <p class="lead">Enter sequences to start comparing</p>
+                    </div>
+                    <div class="col-4 align-self-end">
+                        <div class="row align-items-right">
+                            <h5 class ="align-self-center">Add sequence</h5>
+                            <button type="button" class="btn btn-primary float-right" id="addSequence" style="font-size: 24px; padding: 0px 10px 0px 10px" onclick="addSequence();">+</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-hover" id="table">
+                    <caption>Sequences</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col"style="width: 5%">#</th>
+                      <th scope="col" style="width: 10%">Name</th>
+                      <th scope="col">nucleotides</th>
+                      <th scope="col" style="width: 10%">action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sequences">
+                  </tbody>
+                </table>
+            </div>
+            <div class="row" style="margin-bottom: 150px">
+                <div class="col">
+                    <h2>Results</h2>
+                </div>
+                <div class="col">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">choose reference sequence</button>
+                        <div class="dropdown-menu" id="ref-chooser">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="row scrolling-wrapper">
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                    <div class="col-1 h-100 box">1</div>
+                </div>
+        </div>
+    </div>
+    <footer class="footer fixed-bottom">
+      <div class="container">
+        <span class="text-muted">ilustration: <a href="https://icons8.com">icons8.com</a></span>
+      </div>
+    </footer>
+
+</body>
+<script>
+    window.jQuery = window.$ = require('jquery');
+</script>
+<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="needleman_wunsch.js" charset="utf-8"></script>
+<script src="appmain.js" charset="utf-8"></script>
+
+</html>
