@@ -1,36 +1,92 @@
 "use strict";
-const { spawn } = require('child_process');
-
+const { spawnSync } = require('child_process');
+const os = require('os').platform();
 /* HELPERS */
-const removeNode = function(node) {
-    node.parentNode.removeChild(node);
+//round number to decimals
+const roundNum = (number, decimals) => {
+    decimals = Math.pow(10,decimals)
+    return Math.round(number* decimals)/decimals
 }
 //remove from list
-Array.prototype.removeValue = function(value) {
+Array.prototype.removeValue = (value) =>{
     let newArray = [...this];
     newArray.splice(newArray.indexOf(value), 1);
     return newArray
 }
 //reverse a string
-String.prototype.reverse = function() {
+String.prototype.reverse = () => {
     return this.split("").reverse().join("");
 }
+//DOM HELPERS
+const removeNode = (node) => {
+    node.parentNode.removeChild(node);
+}
 
-const copyObj = function(sourceObj) {
+const copyObj = (sourceObj) => {
     return JSON.parse(JSON.stringify(sourceObj))
 }
 
-const removeAllChildren = function(node) {
+const removeAllChildren = (node) => {
     while (node.firstChild) {
         node.removeChild(node.firstChild);
     }
 }
 
-function createElementFromHTML(htmlString) {
+const createElementFromHTML = (htmlString) => {
     var div = document.createElement('div');
     div.innerHTML = htmlString.trim();
     return div.firstChild;
 }
+
+const createHTMLList = (spacecrafts) => {
+
+    var listView = document.createElement('ul');
+
+    for (var i = 0; i < spacecrafts.length; i++) {
+        var listViewItem = document.createElement('li');
+        listViewItem.appendChild(document.createTextNode(spacecrafts[i]));
+        listView.appendChild(listViewItem);
+    }
+
+    return listView;
+}
+
+
+//convert C program output to String
+const Utf8ArrayToStr = (array) => {
+    var out, i, len, c;
+    var char2, char3;
+
+    out = "";
+    len = array.length;
+    i = 0;
+    while (i < len) {
+        c = array[i++];
+        switch (c >> 4) {
+            case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+                // 0xxxxxxx
+                out += String.fromCharCode(c);
+                break;
+            case 12: case 13:
+                // 110x xxxx   10xx xxxx
+                char2 = array[i++];
+                out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+                break;
+            case 14:
+                // 1110 xxxx  10xx xxxx  10xx xxxx
+                char2 = array[i++];
+                char3 = array[i++];
+                out += String.fromCharCode(((c & 0x0F) << 12) |
+                    ((char2 & 0x3F) << 6) |
+                    ((char3 & 0x3F) << 0));
+                break;
+        }
+    }
+
+    return out;
+}
+
+
 
 //current amount of sequences
 var sequenceAmount = 0;
@@ -38,10 +94,11 @@ var sequenceAmount = 0;
 var sequences;
 //current reference sequence
 var refSequenceName;
+//current comparisons
+var comparisons = {};
 
 
-
-const sequenceTemplate = function() {
+const sequenceTemplate = () => {
     return `<th scope="row">x</th>
                   <td class="seq-name" contentEditable="true" data-toggle="tooltip" data-placement="top" title="Click to edit name" id="namex" spellcheck="false">Sequence ${sequenceAmount}</td>
                   <td><input type="text" class="form-control sequence-input" placeholder="enter sequence" id="seqx"/></td>
@@ -49,7 +106,7 @@ const sequenceTemplate = function() {
 }
 
 //adds a sequence row
-const addSequence = function() {
+const addSequence = () => {
     let sequenceRows = document.getElementsByClassName("sequence-row");
     sequenceAmount = sequenceRows.length;
     sequenceAmount++
@@ -63,7 +120,7 @@ const addSequence = function() {
 }
 
 //removes sequence
-const removeSequence = function(button) {
+const removeSequence = (button) => {
     sequenceAmount--
     button.parentNode.parentNode.remove();
     updateSeqInfo();
@@ -71,7 +128,7 @@ const removeSequence = function(button) {
 }
 
 //update sequences list
-const getSequences = function() {
+const getSequences = () => {
     let sequences = {};
     for (var i = 1; i <= sequenceAmount; i++) {
         sequences[(document.getElementById("name" + i).innerHTML)] = document.getElementById("seq" + i).value;
@@ -79,24 +136,44 @@ const getSequences = function() {
     return sequences
 }
 //sets the reference sequence
-const chooseReferenceSequence = function(dropdownItem) {
+const chooseReferenceSequence = (dropdownItem) => {
     refSequenceName = dropdownItem.innerHTML
     updateRefSequenceSelector()
     showComparison(refSequenceName)
 }
 
-const showComparison = function(refSequenceName) {
-    let comparisons = {};
+const showComparison = (refSequenceName) => {
     let refSequence = sequences[refSequenceName];
+    comparisons = {};
     for (var sequence in sequences) {
         if (sequence != refSequenceName) {
-            let comparison = spawn('./resources/c/needleman_wunsch', ["--freestartgap", "--freeendgap", refSequence, sequences[sequence]]);
-            comparison.stdout.on('data', (data) => {
-              comparisons[sequence] = `${data}`.split("\n").slice(0,2)
-            });
+            let comparison = spawnSync(`./resources/c/needleman_wunsch_${os}`, ["--freestartgap", "--freeendgap", sequences[sequence], refSequence]);
+            comparisons[sequence] = Utf8ArrayToStr(comparison.stdout).split("\n").slice(0, 2)
         }
     }
-    console.log(comparisons);
+    //displaying part
+    // TODO: add processing like % of difference
+
+    //compute similarity
+    let similarity = []
+    for (var sequence in comparisons) {
+        if (comparisons.hasOwnProperty(sequence)) {
+            let comparedSequences = comparisons[sequence]
+            let differencesCount = 0
+            for (var i = 0; i < comparedSequences[0].length; i++) {
+                if (comparedSequences[0][i] != comparedSequences[1][i]) differencesCount++
+            }
+            differencesCount*= 100/comparedSequences[0].length;
+            differencesCount = 100 - differencesCount
+            differencesCount = roundNum(differencesCount,3);
+            similarity.push(`${sequence}: ${differencesCount}% of similarity`)
+        }
+    }
+
+    let resultContainer = document.getElementById('results');
+    removeNode(resultContainer.firstChild)
+    resultContainer.appendChild(createHTMLList(similarity))
+
 }
 
 window.addEventListener('DOMContentLoaded', function main() {
@@ -108,7 +185,7 @@ window.addEventListener('DOMContentLoaded', function main() {
 
 /* UI UPDATES */
 
-const updateSeqInfo = function() {
+const updateSeqInfo = () => {
     console.log("updated info");
     seqUpdateListeners()
     updateSeqIds()
@@ -116,7 +193,7 @@ const updateSeqInfo = function() {
     sequences = getSequences();
 }
 //on delete
-const updateSeqIds = function() {
+const updateSeqIds = () => {
     let sequenceRows = document.getElementsByClassName("sequence-row");
     sequenceAmount = sequenceRows.length;
     for (let i = 0; i < sequenceRows.length; i++) {
@@ -127,7 +204,7 @@ const updateSeqIds = function() {
     }
 }
 
-const updateRefSequenceSelector = function () {
+const updateRefSequenceSelector = () => {
     let dropdownMenu = document.getElementById("ref-chooser");
     removeAllChildren(dropdownMenu);
     dropdownMenu.appendChild(createElementFromHTML(`<a class="dropdown-item" onclick="chooseReferenceSequence(this)">${refSequenceName ? refSequenceName : "None"}</a>`));
@@ -139,7 +216,7 @@ const updateRefSequenceSelector = function () {
     }
 }
 
-const seqUpdateListeners = function() {
+const seqUpdateListeners = () => {
     let sequenceNames = document.getElementsByClassName("seq-name"),
         sequenceInputs = document.getElementsByClassName("sequence-input");
     for (let i = 0; i < sequenceNames.length; i++) {
@@ -150,17 +227,17 @@ const seqUpdateListeners = function() {
     }
 }
 
-const randomInt = function(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min +1)) + min;
+const randomInt = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-const generateRandomSequence = function(len){
-    let nucleotides = ["A","T","G","C"];
+const generateRandomSequence = (len) => {
+    let nucleotides = ["A", "T", "G", "C"];
     let result = [];
     for (var i = 0; i < len; i++) {
-        result.push(nucleotides[randomInt(0,3)])
+        result.push(nucleotides[randomInt(0, 3)])
     }
     return result.join("")
 }
