@@ -5,12 +5,19 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "asar pack DnaComparison-darwin-x64/DnaComparison.app/Contents/Resources/app DnaComparison-darwin-x64/DnaComparison.app/Contents/Resources/app.asar && rm -rf DnaComparison-darwin-x64/DnaComparison.app/Contents/Resources/app",
+    "build": "electron-packager . DnaComparison --ignore=node_modules/electron-* --icon=./dna.icns --overwrite",
+    "builddmg" : "electron-installer-dmg ./DnaComparison-darwin-x64/DnaComparison.app DnaComparison",
+    "makedarwin" : "build && package && builddmg && exit" 
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^7.1.7"
+    "electron": "^7.1.7",
+    "electron-installer-dmg": "^3.0.0",
+    "electron-packager": "^14.1.1",
+    "asar": "^2.0.3"
   },
   "dependencies": {
     "bootstrap": "^4.4.1",
