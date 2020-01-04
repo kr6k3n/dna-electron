@@ -1,14 +1,10 @@
-const { app, BrowserWindow, nativeImage } = require('electron')
+const { app, BrowserWindow } = require('electron')
 
 // Gardez une reference globale de l'objet window, si vous ne le faites pas, la fenetre sera
 // fermee automatiquement quand l'objet JavaScript sera garbage collected.
 let win
 
 function createWindow () {
-  const image = nativeImage.createFromPath(
-    app.getAppPath() + "/dna.icns"
-  );
-  app.dock.setIcon(image);
   // Créer le browser window.
   win = new BrowserWindow({
     width: 800,
