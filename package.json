@@ -8,8 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "package": "asar pack DnaComparison-darwin-x64/DnaComparison.app/Contents/Resources/app DnaComparison-darwin-x64/DnaComparison.app/Contents/Resources/app.asar && rm -rf DnaComparison-darwin-x64/DnaComparison.app/Contents/Resources/app",
     "build": "electron-packager . DnaComparison --ignore=node_modules/electron-* --icon=./dna.icns --overwrite",
-    "builddmg" : "electron-installer-dmg ./DnaComparison-darwin-x64/DnaComparison.app DnaComparison",
-    "makedarwin" : "build && package && builddmg && exit" 
+    "builddmg": "electron-installer-dmg ./DnaComparison-darwin-x64/DnaComparison.app DnaComparison",
+    "makedarwin": "build && package && builddmg && exit"
   },
   "author": "",
   "license": "ISC",

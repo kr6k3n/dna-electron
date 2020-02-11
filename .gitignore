@@ -107,3 +107,9 @@ dist
 .vscode-test
 
 package-lock.json
+
+#Mac os
+.DS_Store
+
+# builds
+DnaComparison-darwin-x64/

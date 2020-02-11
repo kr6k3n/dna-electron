@@ -147,8 +147,10 @@ const showComparison = (refSequenceName) => {
     comparisons = {};
     for (var sequence in sequences) {
         if (sequence != refSequenceName) {
-            let comparison = spawnSync(`./resources/c/needleman_wunsch_${os}`, ["--freestartgap", "--freeendgap", sequences[sequence], refSequence]);
+            let comparison = spawnSync(`${__dirname.slice(0,__dirname.length-4)}/resources/c/needleman_wunsch_${os}`, ["--freestartgap", "--freeendgap", sequences[sequence], refSequence]);
+            console.log(comparison);
             comparisons[sequence] = Utf8ArrayToStr(comparison.stdout).split("\n").slice(0, 2)
+
         }
     }
     //displaying part
@@ -181,6 +183,7 @@ window.addEventListener('DOMContentLoaded', function main() {
     addSequence();
     addSequence();
     updateSeqInfo()
+
 })
 
 /* UI UPDATES */
