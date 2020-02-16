@@ -7,16 +7,36 @@ const roundNum = (number, decimals) => {
     decimals = Math.pow(10,decimals)
     return Math.round(number* decimals)/decimals
 }
-//remove from list
-Array.prototype.removeValue = (value) =>{
-    let newArray = [...this];
-    newArray.splice(newArray.indexOf(value), 1);
-    return newArray
-}
 //reverse a string
 String.prototype.reverse = () => {
     return this.split("").reverse().join("");
 }
+// map method in string
+String.prototype.map = function (func) {
+  let map = [],
+      chars = this.split("")
+  for (let i = 0; i < this.length; i++) {
+    map.push(func(chars[i]))
+  }
+  return map.join("")
+}
+
+HTMLCollection.prototype.map = function (func) {
+  let map = [];
+  for (var i = 0; i < this.length; i++) {
+    map.push(func(this[i]))
+  }
+  return map
+}
+
+
+//keep specific letters from string
+const filterLetters = (message, letters) =>{
+  let filteredmessage = ""
+  message.map()
+  return filteredmessage
+}
+
 //DOM HELPERS
 const removeNode = (node) => {
     node.parentNode.removeChild(node);
@@ -38,19 +58,19 @@ const createElementFromHTML = (htmlString) => {
     return div.firstChild;
 }
 
-const createHTMLList = (spacecrafts) => {
-
+const createHTMLList = (elements) => {
     var listView = document.createElement('ul');
-
-    for (var i = 0; i < spacecrafts.length; i++) {
+    for (var i = 0; i < elements.length; i++) {
         var listViewItem = document.createElement('li');
-        listViewItem.appendChild(document.createTextNode(spacecrafts[i]));
+        listViewItem.appendChild(document.createTextNode(elements[i]));
         listView.appendChild(listViewItem);
     }
-
     return listView;
 }
 
+const mapEventListenerToClass = (className, func, eventType) => {
+  document.getElementsByClassName(className).map(element => element.addEventListener(eventType, func))
+}
 
 //convert C program output to String
 const Utf8ArrayToStr = (array) => {
@@ -64,16 +84,13 @@ const Utf8ArrayToStr = (array) => {
         c = array[i++];
         switch (c >> 4) {
             case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-                // 0xxxxxxx
                 out += String.fromCharCode(c);
                 break;
             case 12: case 13:
-                // 110x xxxx   10xx xxxx
                 char2 = array[i++];
                 out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
                 break;
             case 14:
-                // 1110 xxxx  10xx xxxx  10xx xxxx
                 char2 = array[i++];
                 char3 = array[i++];
                 out += String.fromCharCode(((c & 0x0F) << 12) |
@@ -82,12 +99,11 @@ const Utf8ArrayToStr = (array) => {
                 break;
         }
     }
-
     return out;
 }
 
 
-
+/* INIT values */
 //current amount of sequences
 var sequenceAmount = 0;
 // list containing sequence data / format : {sequence name : sequence value}
@@ -98,12 +114,12 @@ var refSequenceName;
 var comparisons = {};
 
 
-const sequenceTemplate = () => {
-    return `<th scope="row">x</th>
-                  <td class="seq-name" contentEditable="true" data-toggle="tooltip" data-placement="top" title="Click to edit name" id="namex" spellcheck="false">Sequence ${sequenceAmount}</td>
-                  <td><input type="text" class="form-control sequence-input" placeholder="enter sequence" id="seqx"/></td>
-                  <td><button type="button" class="btn btn-danger" onclick="removeSequence(this);">delete</button></td>`
-}
+const sequenceTemplate = () => (
+    `<th scope="row">x</th>
+          <td class="seq-name" contentEditable="true" data-toggle="tooltip" data-placement="top" title="Click to edit name" id="namex" spellcheck="false">Sequence ${sequenceAmount}</td>
+          <td><input type="text" class="form-control sequence-input" placeholder="enter sequence" id="seqx"/></td>
+          <td><button type="button" class="btn btn-danger" onclick="removeSequence(this);">delete</button></td>`
+)
 
 //adds a sequence row
 const addSequence = () => {
@@ -154,7 +170,7 @@ const showComparison = (refSequenceName) => {
         }
     }
     //displaying part
-    // TODO: add processing like % of difference
+    //TODO: add alignement display with lazy loading
 
     //compute similarity
     let similarity = []
@@ -179,17 +195,22 @@ const showComparison = (refSequenceName) => {
 }
 
 window.addEventListener('DOMContentLoaded', function main() {
-    seqUpdateListeners()
     addSequence();
     addSequence();
-    updateSeqInfo()
-
 })
 
 /* UI UPDATES */
+const checkSequence = (sequence) => {
+  sequence.value = sequence.value.map(letter => "ATGCatgc".indexOf(letter) > -1 ? letter.toUpperCase() : null)
+}
+
+const updateSequence = (sequence) => {
+  checkSequence(sequence);//sequence is htmlcollection
+  sequences = getSequences();
+}
 
 const updateSeqInfo = () => {
-    console.log("updated info");
+    //  console.log("updated info");
     seqUpdateListeners()
     updateSeqIds()
     updateRefSequenceSelector()
@@ -220,14 +241,8 @@ const updateRefSequenceSelector = () => {
 }
 
 const seqUpdateListeners = () => {
-    let sequenceNames = document.getElementsByClassName("seq-name"),
-        sequenceInputs = document.getElementsByClassName("sequence-input");
-    for (let i = 0; i < sequenceNames.length; i++) {
-        sequenceNames.item(i).addEventListener("keyup", updateSeqInfo)
-    }
-    for (let i = 0; i < sequenceInputs.length; i++) {
-        sequenceInputs.item(i).addEventListener("keyup", updateSeqInfo)
-    }
+  document.getElementsByClassName("sequence-input").map(sequence => sequence.addEventListener("keyup",() => updateSequence(sequence)))
+  mapEventListenerToClass("seq-name", updateSeqInfo, "keyup")
 }
 
 const randomInt = (min, max) => {
