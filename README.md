@@ -7,7 +7,7 @@ Made this to run dna comparison on my own computer rather than on the server of 
 You can either download the app pre-built or build it yourself
 
 ### Download packaged app 
-Go to the [releases](https://github.com/kr6k3n/dna-electron/) page and download the version for your Os (only mac os supported for the moment)
+Go to the [releases](https://github.com/kr6k3n/dna-electron/releases) page and download the version for your Os (only mac os supported for the moment)
 
 ## Build it yourself
 
