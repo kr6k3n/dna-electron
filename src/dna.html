@@ -16,7 +16,7 @@
 <body>
     <!-- Begin page content -->
     <div class="container-fluid align-items-center justify-content-center">
-        <div class="col-xl-6 col-sm-12 col-8 mx-auto blur">
+        <div class="col-xl-8 col-sm-12 col-8 mx-auto blur shadow-lg p-3 mb-5 rounded" id="main-container">
             <div class="col text-center" style="padding-bottom: 20px">
                 <h1 style="padding: 20px">DNA comparison</h1>
                 <div class="row justify-content-between" style="margin-bottom: 20px">
@@ -44,10 +44,11 @@
                   </tbody>
                 </table>
             </div>
-            <div class="row" >
+            <div class="row" id="results-title-bar">
                 <div class="col">
                     <h2>Results</h2>
                 </div>
+                <div class="col h4">Reference sequence: <br> <p id="reference-sequence-name" style="color: green"></p></div>
                 <div class="col">
                     <div class="input-group-prepend">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">choose reference sequence</button>
@@ -59,11 +60,11 @@
             </div>
             <hr>
             <div class="col" id="results" style="margin-bottom: 50px">
-
+                <div class="row scrolling-wrapper" id="test-wrapper"></div>
             </div>
         </div>
     </div>
-    <footer class="footer fixed-bottom">
+    <footer class="footer">
       <div class="container">
           <b>Made by <a style="color : blue">Solal Baudoin</a></b>
       </div>

@@ -1,3 +1,11 @@
+body {
+  background-repeat: no-repeat;
+  background-position: center;
+  font: "Century Gothic", Futura, sans-serif;
+  background-color: white;
+
+}
+
 .btn {
     margin: 5px
 }
@@ -7,15 +15,9 @@
     flex-wrap: nowrap;
     overflow-x: auto;
 
-    .card {
+    .nucleotide {
         flex: 0 0 auto;
     }
-}
-
-body {
-    background-repeat: no-repeat;
-    background-position: center;
-    font: "Century Gothic", Futura, sans-serif;
 }
 
 .blur {
@@ -23,16 +25,31 @@ body {
 }
 
 .scrolling-wrapper {
+    flex-grow: 1 !important;
     overflow-x: scroll;
     overflow-y: hidden;
     white-space: nowrap;
-
-    .box {
-        height: 20px;
-        width: 20px;
-        display: inline-block;
-    }
+    align-items: flex-start;
 }
+
+.nucleotide {
+    height: 20px;
+    width: 20px;
+}
+.nucleotide-col {
+    display: inline !important;
+}
+
+.footer {
+  padding-bottom: 30px
+}
+
+#main-container {
+  padding-bottom: 1%;
+  background-color: white 
+}
+
+
 
 ::-webkit-scrollbar {
     padding: 10px;

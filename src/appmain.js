@@ -30,13 +30,6 @@ HTMLCollection.prototype.map = function (func) {
 }
 
 
-//keep specific letters from string
-const filterLetters = (message, letters) =>{
-  let filteredmessage = ""
-  message.map()
-  return filteredmessage
-}
-
 //DOM HELPERS
 const removeNode = (node) => {
     node.parentNode.removeChild(node);
@@ -109,7 +102,7 @@ var sequenceAmount = 0;
 // list containing sequence data / format : {sequence name : sequence value}
 var sequences;
 //current reference sequence
-var refSequenceName;
+var refSequenceName = undefined;
 //current comparisons
 var comparisons = {};
 
@@ -131,8 +124,8 @@ const addSequence = () => {
     sequence.innerHTML = sequenceTemplate()
     let table = document.getElementById("sequences");
     table.appendChild(sequence);
-    updateSeqInfo();
     seqUpdateListeners();
+    updateSeqInfo();
 }
 
 //removes sequence
@@ -153,9 +146,10 @@ const getSequences = () => {
 }
 //sets the reference sequence
 const chooseReferenceSequence = (dropdownItem) => {
-    refSequenceName = dropdownItem.innerHTML
-    updateRefSequenceSelector()
-    showComparison(refSequenceName)
+    refSequenceName = dropdownItem.innerHTML;
+    document.getElementById('reference-sequence-name').innerHTML = refSequenceName;
+    updateRefSequenceSelector();
+    showComparison(refSequenceName);
 }
 
 const showComparison = (refSequenceName) => {
@@ -163,8 +157,8 @@ const showComparison = (refSequenceName) => {
     comparisons = {};
     for (var sequence in sequences) {
         if (sequence != refSequenceName) {
-            let comparison = spawnSync(`${__dirname.slice(0,__dirname.length-4)}/resources/c/needleman_wunsch_${os}`, ["--freestartgap", "--freeendgap", sequences[sequence], refSequence]);
-            console.log(comparison);
+            let comparison = spawnSync(`${__dirname.slice(0,__dirname.length-4)}/resources/c/needleman_wunsch_${os}`, [ sequences[sequence], refSequence]);
+            console.log(Utf8ArrayToStr(comparison.stdout));
             comparisons[sequence] = Utf8ArrayToStr(comparison.stdout).split("\n").slice(0, 2)
 
         }
@@ -197,11 +191,14 @@ const showComparison = (refSequenceName) => {
 window.addEventListener('DOMContentLoaded', function main() {
     addSequence();
     addSequence();
+    testNucleotides(10)
 })
 
 /* UI UPDATES */
 const checkSequence = (sequence) => {
-  sequence.value = sequence.value.map(letter => "ATGCatgc".indexOf(letter) > -1 ? letter.toUpperCase() : null)
+  //TODO : add mode for RNA
+  let acceptedLetters = "ATGCatgc";
+  sequence.value = sequence.value.map(letter => acceptedLetters.indexOf(letter) > -1 ? letter.toUpperCase() : null)
 }
 
 const updateSequence = (sequence) => {
@@ -211,10 +208,10 @@ const updateSequence = (sequence) => {
 
 const updateSeqInfo = () => {
     //  console.log("updated info");
-    seqUpdateListeners()
-    updateSeqIds()
-    updateRefSequenceSelector()
+    seqUpdateListeners();
+    updateSeqIds();
     sequences = getSequences();
+    updateRefSequenceSelector()
 }
 //on delete
 const updateSeqIds = () => {
@@ -233,6 +230,7 @@ const updateRefSequenceSelector = () => {
     removeAllChildren(dropdownMenu);
     dropdownMenu.appendChild(createElementFromHTML(`<a class="dropdown-item" onclick="chooseReferenceSequence(this)">${refSequenceName ? refSequenceName : "None"}</a>`));
     dropdownMenu.appendChild(createElementFromHTML('<div role="separator" class="dropdown-divider"></div>'));
+    console.log(sequences);
     for (var name in sequences) {
         if (sequences.hasOwnProperty(name) && name != refSequenceName) {
             dropdownMenu.appendChild(createElementFromHTML(`<a class="dropdown-item" onclick="chooseReferenceSequence(this)">${name}</a>`));
@@ -258,4 +256,15 @@ const generateRandomSequence = (len) => {
         result.push(nucleotides[randomInt(0, 3)])
     }
     return result.join("")
+}
+
+const testNucleotides = (number) => {
+    let template = `<div class="col nucleotide-col">
+        <div class="row nucleotide">A</div>
+        <div class="row nucleotide">T</div>
+    </div>`
+    let wrapper = document.getElementById('test-wrapper')
+    for (var i = 0; i < number; i++) {
+        wrapper.innerHTML += template
+    }
 }
