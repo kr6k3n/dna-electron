@@ -10,7 +10,12 @@ body {
 
 #main-container {
   background-color: white;
-  border-radius: 30px
+}
+
+.table-container {
+    padding: 20px;
+    padding-bottom: 0px;
+    border-radius: 30px
 }
 
 .btn {
@@ -36,6 +41,17 @@ th, .seq-name, .sequence-input {
 
 /* Sequence alignment*/
 
+.comparison{
+    border-radius: 30px;
+    margin-top: 10px;
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px
+}
+.comparison:hover{
+    background-color: aliceblue
+}
+
 .alignment-wrapper {
     flex-grow: 1 !important;
     overflow-x: scroll;
@@ -43,6 +59,7 @@ th, .seq-name, .sequence-input {
     white-space: nowrap;
     align-items: flex-start;
     padding-left: 10px;
+    margin-top: 5px;
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;

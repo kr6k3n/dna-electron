@@ -1,3 +1,4 @@
+//random Helpers
 const Utf8ArrayToStr = (array) => {
     var out, i, len, c;
     var char2, char3;
@@ -26,8 +27,12 @@ const Utf8ArrayToStr = (array) => {
     }
     return out;
 }
-
+const roundNum = (number, decimals) => {
+    decimals = Math.pow(10,decimals)
+    return Math.round(number* decimals)/decimals
+}
 module.exports = {
     Utf8ArrayToStr: Utf8ArrayToStr,
+    roundNum: roundNum
 
 }

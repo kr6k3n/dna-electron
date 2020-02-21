@@ -22,6 +22,7 @@
   "dependencies": {
     "bootstrap": "^4.4.1",
     "jquery": "^3.4.1",
-    "popper.js": "^1.14.3"
+    "popper.js": "^1.14.3",
+    "sweetalert2": "^9.7.2"
   }
 }

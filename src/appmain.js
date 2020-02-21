@@ -2,13 +2,10 @@
 const { spawnSync } = require('child_process');
 const os = require('os').platform();
 const { whenInViewport } = require('./inView.js')
-const { Utf8ArrayToStr } = require('./helpers.js')
-/* HELPERS */
-//round number to decimals
-const roundNum = (number, decimals) => {
-    decimals = Math.pow(10,decimals)
-    return Math.round(number* decimals)/decimals
-}
+const { Utf8ArrayToStr, roundNum } = require('./helpers.js')
+const { removeNode, copyObj,removeAllChildren, createElementFromHTML } = require("./domhelpers.js")
+
+
 //reverse a string
 String.prototype.reverse = function () {
     return this.split("").reverse().join("");
@@ -31,40 +28,19 @@ HTMLCollection.prototype.map = function (func) {
   return map
 }
 
-
-//DOM HELPERS
-const removeNode = (node) => {
-    if (node == undefined) return;
-    node.parentNode.removeChild(node);
-}
-
-const copyObj = (sourceObj) => {
-    return JSON.parse(JSON.stringify(sourceObj))
-}
-
-const removeAllChildren = (node) => {
-    while (node.firstChild) {
-        node.removeChild(node.firstChild);
-    }
-}
-
-const createElementFromHTML = (htmlString) => {
-    var div = document.createElement('div');
-    div.innerHTML = htmlString.trim();
-    return div.firstChild;
-}
-
-const makeComparisonList = (elements, comparisons) => {
-    var listView = document.createElement('ul');
+const makeComparisonList = (similarity, comparisons) => {
+    var listView = document.createElement('div');
     let i=0;
     for (var sequence in comparisons) {
-        var listViewItem = document.createElement('li');
-        listViewItem.appendChild(document.createTextNode(elements[i]));
-        listViewItem.appendChild(renderAlignment(comparisons[sequence][0], comparisons[sequence][1]))
+        var listViewItem = document.createElement('div');
+        listViewItem.setAttribute("class", "col comparison shadow-lg")
+        listViewItem.innerHTML += similarity[i];
+        listViewItem.appendChild(renderAlignment(comparisons[sequence][0], comparisons[sequence][1], ))
         listView.appendChild(listViewItem);
         i++
     }
     listView.setAttribute("id", "resultlist");
+    listView.setAttribute("class", "col");
     return listView;
 }
 
@@ -129,8 +105,6 @@ const showComparison = (refSequenceName) => {
         }
     }
     //displaying part
-    //TODO: add lazy loading
-
     //compute similarity
     let similarity = []
     for (var sequence in comparisons) {
@@ -143,7 +117,7 @@ const showComparison = (refSequenceName) => {
             differencesCount*= 100/comparedSequences[0].length;
             differencesCount = 100 - differencesCount
             differencesCount = roundNum(differencesCount,3);
-            similarity.push(`${sequence}: ${differencesCount}% of similarity`)
+            similarity.push(`<b>${sequence}</b>: ${differencesCount}% of similarity`)
         }
     }
     let resultContainer = document.getElementById("results")
@@ -188,7 +162,6 @@ const updateRefSequenceSelector = () => {
     removeAllChildren(dropdownMenu);
     dropdownMenu.appendChild(createElementFromHTML(`<a class="dropdown-item" onclick="chooseReferenceSequence(this)">${refSequenceName ? refSequenceName : "None"}</a>`));
     dropdownMenu.appendChild(createElementFromHTML('<div role="separator" class="dropdown-divider"></div>'));
-    console.log(sequences);
     for (var name in sequences) {
         if (sequences.hasOwnProperty(name) && name != refSequenceName) {
             dropdownMenu.appendChild(createElementFromHTML(`<a class="dropdown-item" onclick="chooseReferenceSequence(this)">${name}</a>`));
@@ -216,9 +189,8 @@ const generateRandomSequence = (len) => {
     return result
 }
 
-const renderAlignment = (seq1, seq2) => { //assuming seq1 & seq2 already aligned ==> same length
+const renderAlignment = (seq1, seq2, seq1name, seq2name) => { //assuming seq1 & seq2 already aligned ==> same length
     // TODO: add sequence titles
-    console.log(seq1,seq2);
     let nucleotideTemplate = nucleotide => (
         `<div class="row nucleotide ${nucleotide} justify-content-center">
             ${nucleotide}
@@ -227,8 +199,8 @@ const renderAlignment = (seq1, seq2) => { //assuming seq1 & seq2 already aligned
     let nucleotideCol = '<div class="col nucleotide-col justify-content-center"></div>'
     for (let i = 0; i<seq1.length; i++){
         let col = createElementFromHTML(nucleotideCol);
-        col.innerHTML += nucleotideTemplate(seq1[i]);
         col.innerHTML += nucleotideTemplate(seq2[i]);
+        col.innerHTML += nucleotideTemplate(seq1[i]);
         wrapper.appendChild(col)
     }
     return wrapper
@@ -249,7 +221,24 @@ const testNucleotides = (number) => {
     }
 }
 
+const loadBunch = (number) => {
+    loadBunch.map
+}
+
+const testPerformance =  () => {
+    var testSize = () => {
+        spawnSync(`${__dirname.slice(0,__dirname.length-4)}/resources/c/needleman_wunsch_${os}`, [ generateRandomSequence(size), generateRandomSequence(size) ])
+    }
+    times = []
+    for (var i=1; i<6; i++){
+        MATH.pow
+    }
+
+}
+
+
 /* Initalization */
+
 
 // INIT global variables
 
