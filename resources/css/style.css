@@ -1,16 +1,48 @@
+/* Main Styling */
 body {
   background-repeat: no-repeat;
   background-position: center;
   font: "Century Gothic", Futura, sans-serif;
   background-color: white;
+  height: 100%;
+  width: 100%;
+}
 
+#main-container {
+  background-color: white;
+  border-radius: 30px
 }
 
 .btn {
     margin: 5px
 }
 
-.scrolling-wrapper {
+.blur {
+    background-color: rgba(250, 250, 250, 0.8);
+}
+
+.footer {
+  padding-bottom: 30px
+}
+
+/* Sequence table */
+th, .seq-name, .sequence-input {
+    vertical-align: middle !important;
+}
+.sequence-input {
+
+}
+
+
+/* Sequence alignment*/
+
+.alignment-wrapper {
+    flex-grow: 1 !important;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+    align-items: flex-start;
+    padding-left: 10px;
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -18,39 +50,47 @@ body {
     .nucleotide {
         flex: 0 0 auto;
     }
-}
 
-.blur {
-    background-color: rgba(250, 250, 250, 0.8);
-}
-
-.scrolling-wrapper {
-    flex-grow: 1 !important;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    white-space: nowrap;
-    align-items: flex-start;
 }
 
 .nucleotide {
-    height: 20px;
+    height: 30px;
     width: 20px;
 }
+
 .nucleotide-col {
-    display: inline !important;
+    flex-grow: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.nucleotide-title {
+
 }
 
-.footer {
-  padding-bottom: 30px
+/* nucleotides */
+div.A {
+    background-color: cornflowerblue;
+    color : white
+}
+div.T {
+    background-color: coral;
+    color: white
+}
+div.G {
+    background-color: blueviolet;
+    color: white;
+}
+div.C {
+    background-color: teal;
+    color: white
 }
 
-#main-container {
-  padding-bottom: 1%;
-  background-color: white 
+div.- {
+    background-color: grey;
+    color: white
 }
 
-
-
+/* Scroll bar */
 ::-webkit-scrollbar {
     padding: 10px;
     height: 5px

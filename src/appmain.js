@@ -1,6 +1,8 @@
 "use strict";
 const { spawnSync } = require('child_process');
 const os = require('os').platform();
+const { whenInViewport } = require('./inView.js')
+const { Utf8ArrayToStr } = require('./helpers.js')
 /* HELPERS */
 //round number to decimals
 const roundNum = (number, decimals) => {
@@ -8,7 +10,7 @@ const roundNum = (number, decimals) => {
     return Math.round(number* decimals)/decimals
 }
 //reverse a string
-String.prototype.reverse = () => {
+String.prototype.reverse = function () {
     return this.split("").reverse().join("");
 }
 // map method in string
@@ -32,6 +34,7 @@ HTMLCollection.prototype.map = function (func) {
 
 //DOM HELPERS
 const removeNode = (node) => {
+    if (node == undefined) return;
     node.parentNode.removeChild(node);
 }
 
@@ -51,13 +54,17 @@ const createElementFromHTML = (htmlString) => {
     return div.firstChild;
 }
 
-const createHTMLList = (elements) => {
+const makeComparisonList = (elements, comparisons) => {
     var listView = document.createElement('ul');
-    for (var i = 0; i < elements.length; i++) {
+    let i=0;
+    for (var sequence in comparisons) {
         var listViewItem = document.createElement('li');
         listViewItem.appendChild(document.createTextNode(elements[i]));
+        listViewItem.appendChild(renderAlignment(comparisons[sequence][0], comparisons[sequence][1]))
         listView.appendChild(listViewItem);
+        i++
     }
+    listView.setAttribute("id", "resultlist");
     return listView;
 }
 
@@ -66,54 +73,11 @@ const mapEventListenerToClass = (className, func, eventType) => {
 }
 
 //convert C program output to String
-const Utf8ArrayToStr = (array) => {
-    var out, i, len, c;
-    var char2, char3;
-
-    out = "";
-    len = array.length;
-    i = 0;
-    while (i < len) {
-        c = array[i++];
-        switch (c >> 4) {
-            case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-                out += String.fromCharCode(c);
-                break;
-            case 12: case 13:
-                char2 = array[i++];
-                out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
-                break;
-            case 14:
-                char2 = array[i++];
-                char3 = array[i++];
-                out += String.fromCharCode(((c & 0x0F) << 12) |
-                    ((char2 & 0x3F) << 6) |
-                    ((char3 & 0x3F) << 0));
-                break;
-        }
-    }
-    return out;
-}
 
 
-/* INIT values */
-//current amount of sequences
-var sequenceAmount = 0;
-// list containing sequence data / format : {sequence name : sequence value}
-var sequences;
-//current reference sequence
-var refSequenceName = undefined;
-//current comparisons
-var comparisons = {};
 
 
-const sequenceTemplate = () => (
-    `<th scope="row">x</th>
-          <td class="seq-name" contentEditable="true" data-toggle="tooltip" data-placement="top" title="Click to edit name" id="namex" spellcheck="false">Sequence ${sequenceAmount}</td>
-          <td><input type="text" class="form-control sequence-input" placeholder="enter sequence" id="seqx"/></td>
-          <td><button type="button" class="btn btn-danger" onclick="removeSequence(this);">delete</button></td>`
-)
-
+/* UI functions */
 //adds a sequence row
 const addSequence = () => {
     let sequenceRows = document.getElementsByClassName("sequence-row");
@@ -152,19 +116,20 @@ const chooseReferenceSequence = (dropdownItem) => {
     showComparison(refSequenceName);
 }
 
+/* Computing functions */
 const showComparison = (refSequenceName) => {
     let refSequence = sequences[refSequenceName];
     comparisons = {};
     for (var sequence in sequences) {
         if (sequence != refSequenceName) {
-            let comparison = spawnSync(`${__dirname.slice(0,__dirname.length-4)}/resources/c/needleman_wunsch_${os}`, [ sequences[sequence], refSequence]);
+            let comparison = spawnSync(`${__dirname.slice(0,__dirname.length-4)}/resources/c/needleman_wunsch_${os}`, [ sequences[sequence], refSequence ]);
             console.log(Utf8ArrayToStr(comparison.stdout));
             comparisons[sequence] = Utf8ArrayToStr(comparison.stdout).split("\n").slice(0, 2)
 
         }
     }
     //displaying part
-    //TODO: add alignement display with lazy loading
+    //TODO: add lazy loading
 
     //compute similarity
     let similarity = []
@@ -181,18 +146,12 @@ const showComparison = (refSequenceName) => {
             similarity.push(`${sequence}: ${differencesCount}% of similarity`)
         }
     }
-
-    let resultContainer = document.getElementById('results');
-    removeNode(resultContainer.firstChild)
-    resultContainer.appendChild(createHTMLList(similarity))
+    let resultContainer = document.getElementById("results")
+    removeNode(document.getElementById('resultlist'))
+    resultContainer.appendChild(makeComparisonList(similarity, comparisons))
 
 }
 
-window.addEventListener('DOMContentLoaded', function main() {
-    addSequence();
-    addSequence();
-    testNucleotides(10)
-})
 
 /* UI UPDATES */
 const checkSequence = (sequence) => {
@@ -207,13 +166,12 @@ const updateSequence = (sequence) => {
 }
 
 const updateSeqInfo = () => {
-    //  console.log("updated info");
     seqUpdateListeners();
     updateSeqIds();
     sequences = getSequences();
     updateRefSequenceSelector()
 }
-//on delete
+
 const updateSeqIds = () => {
     let sequenceRows = document.getElementsByClassName("sequence-row");
     sequenceAmount = sequenceRows.length;
@@ -251,20 +209,69 @@ const randomInt = (min, max) => {
 
 const generateRandomSequence = (len) => {
     let nucleotides = ["A", "T", "G", "C"];
-    let result = [];
+    let result = "";
     for (var i = 0; i < len; i++) {
-        result.push(nucleotides[randomInt(0, 3)])
+        result += nucleotides[randomInt(0, 3)]
     }
-    return result.join("")
+    return result
+}
+
+const renderAlignment = (seq1, seq2) => { //assuming seq1 & seq2 already aligned ==> same length
+    // TODO: add sequence titles
+    console.log(seq1,seq2);
+    let nucleotideTemplate = nucleotide => (
+        `<div class="row nucleotide ${nucleotide} justify-content-center">
+            ${nucleotide}
+        </div>`);
+    let wrapper = createElementFromHTML('<div class="row justify-content-start alignment-wrapper"></div>');
+    let nucleotideCol = '<div class="col nucleotide-col justify-content-center"></div>'
+    for (let i = 0; i<seq1.length; i++){
+        let col = createElementFromHTML(nucleotideCol);
+        col.innerHTML += nucleotideTemplate(seq1[i]);
+        col.innerHTML += nucleotideTemplate(seq2[i]);
+        wrapper.appendChild(col)
+    }
+    return wrapper
 }
 
 const testNucleotides = (number) => {
-    let template = `<div class="col nucleotide-col">
-        <div class="row nucleotide">A</div>
-        <div class="row nucleotide">T</div>
-    </div>`
+    let template = `<div class="col nucleotide-col justify-content-center">
+                        <div class="row nucleotide A justify-content-center">A</div>
+                        <div class="row nucleotide T justify-content-center">T</div>
+                    </div>
+                    <div class="col nucleotide-col justify-content-center">
+                        <div class="row nucleotide G justify-content-center">G</div>
+                        <div class="row nucleotide C justify-content-center">C</div>
+                    </div>`;
     let wrapper = document.getElementById('test-wrapper')
-    for (var i = 0; i < number; i++) {
+    for (var i = 0; i < Math.floor(number/2); i++) {
         wrapper.innerHTML += template
     }
 }
+
+/* Initalization */
+
+// INIT global variables
+
+//current amount of sequences
+var sequenceAmount = 0;
+// list containing sequence data / format : {sequence name : sequence value}
+var sequences;
+//current reference sequence
+var refSequenceName = undefined;
+//current comparisons
+var comparisons = {};
+
+const sequenceTemplate = () => (
+    `<th scope="row">x</th>
+     <td class="seq-name" contentEditable="true" data-toggle="tooltip" data-placement="top" title="Click to edit name" id="namex" spellcheck="false">Sequence ${sequenceAmount}</td>
+     <td><input type="text" class="form-control sequence-input" placeholder="enter sequence" id="seqx"/></td>
+     <td><button type="button" class="btn btn-danger" onclick="removeSequence(this);">delete</button></td>`
+)
+
+//Initialize Sequences
+window.addEventListener('DOMContentLoaded', function main() {
+    addSequence();
+    addSequence();
+    //for dev purposes
+    })
