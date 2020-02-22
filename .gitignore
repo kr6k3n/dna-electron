@@ -113,3 +113,4 @@ package-lock.json
 
 # builds
 DnaComparison-darwin-x64/
+DnaComparison-linux-x64/
