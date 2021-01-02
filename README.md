@@ -14,5 +14,3 @@ Go to the [releases](https://github.com/kr6k3n/dna-electron/releases) page and d
 ```bash
 git clone https://github.com/kr6k3n/dna-electron && cd dna-electron && npm install && npm run-script build
 ```
-## Attributions
-used [noporpoise](https://github.com/noporpoise)'s [seq-align](https://github.com/noporpoise/seq-align) C library for fast sequence alignment 
