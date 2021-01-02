@@ -1,6 +1,6 @@
-# Simple DNA Sequence comparison App made with Love and Electron
+# Simple DNA Sequence comparison App
 
-Made this to run dna comparison on my own computer real fast. Fun project!
+Made this to run dna comparison on my own computer real fast.
 
 ## Installation
 
